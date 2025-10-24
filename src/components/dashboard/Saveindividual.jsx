@@ -5,18 +5,25 @@ import { hederaTestnet } from "@reown/appkit/networks";
 import { toast } from "react-toastify";
 import { ErrorDecoder } from "ethers-decode-error";
 import abi from "../../constants/singlethriftAbi.json";
+import tokenAbi from "../../constants/tokenAbi.json"
 import useSignerOrProvider from "../../hooks/useSignerOrProvider";
-import { Contract, ethers } from "ethers";
+import { Contract, ethers, parseUnits } from "ethers";
 import ButtonSpinner from "../loaders/ButtonSpinner";
 
-const Saveindividual = ({ thriftAddress }) => {
+const Saveindividual = ({ thriftAddress, amount }) => {
   const { chainId } = useAppKitNetwork();
   const { address } = useAppKitAccount();
   const errorDecoder = ErrorDecoder.create([abi]);
   const { signer } = useSignerOrProvider();
   const [loading, setLoading] = useState(false)
+  console.log(amount)
 
   const contract = new ethers.Contract(thriftAddress, abi, signer);
+  const ercContract = new ethers.Contract(
+    import.meta.env.VITE_TOKEN_ADDRESS,
+    tokenAbi,
+    signer
+  );
   const userAdd = address.toLowerCase()
 
   const handleSaveFor = useCallback(async () => {
@@ -42,6 +49,21 @@ const Saveindividual = ({ thriftAddress }) => {
 
     try {
       setLoading(true)
+
+      const ercTx = await ercContract.approve(
+        import.meta.env.VITE_TOKEN_ADDRESS,
+        ethers.parseUnits(amount, 18)
+      );
+      const rcp = await ercTx.wait
+      if (rcp.status) {
+        toast.success("Approval successful!", {
+          position: "top-center",
+        });
+      } else {
+        toast.error("Approval failed!", {
+          position: "top-center",
+        });
+      }
 
       const tx = await contract.saveForGoal(address);
       console.log(tx);
