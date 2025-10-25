@@ -56,6 +56,7 @@ const CreateModule = () => {
       toast.error("Invalid token selected", {
         position: "top-center",
       });
+      console.log("token slected", selectedToken)
       return;
     }
 

@@ -49,12 +49,14 @@ const Saveindividual = ({ thriftAddress, amount }) => {
 
     try {
       setLoading(true)
+      console.log("Approving token transfer...", import.meta.env.VITE_TOKEN_ADDRESS, thriftAddress,userAdd )
 
       const ercTx = await ercContract.approve(
-        import.meta.env.VITE_TOKEN_ADDRESS,
+        thriftAddress,
         ethers.parseUnits(amount, 18)
       );
-      const rcp = await ercTx.wait
+      const rcp = await ercTx.wait();
+      
       if (rcp.status) {
         toast.success("Approval successful!", {
           position: "top-center",
